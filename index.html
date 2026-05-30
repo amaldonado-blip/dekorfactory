@@ -459,7 +459,7 @@ td{padding:8px 9px;border-bottom:1px solid #222;}
 var CAP=540, SM={e:1,g:1.4,m:0.7};
 // ── GOOGLE SHEETS CONFIG ──────────────────────────────────────────────────
 // Reemplaza esta URL con la de tu Google Apps Script desplegado
-var SCRIPT_URL = 'https://script.google.com/a/macros/dekorfactory.com/s/AKfycbwah3jbvWXOgwlgqEsIfpT9RE0SCF5XEIJy7qBl4FkjIM3afHrZ8gfIK7ORLKZr6Gvz0A/exec';
+var SCRIPT_URL = 'https://script.google.com/a/macros/dekorfactory.com/s/AKfycbztbPrjj-g9SiDUa-4b22NhS-jbKE97oFab5s7c7o1VmagmY3Q478zx7oxBIfVIX-ZznA/exec';
 var DB_READY = false;
 
 function api(action, data, cb) {
@@ -1026,11 +1026,24 @@ function chgSt(id,s){
 }
 function delOrd(id){
   var nm='';for(var i=0;i<ORDERS.length;i++){if(ORDERS[i].id===id){nm=ORDERS[i].cl;break;}}
-  if(!confirm('Borrar Orden #'+pad(id)+' de '+nm+'?'))return;
+  if(!confirm('Borrar Orden #'+pad(id)+' de '+nm+'?\n\nEsta accion no se puede deshacer.'))return;
+  // Remove locally first
   var no=[];for(var i=0;i<ORDERS.length;i++){if(ORDERS[i].id!==id)no.push(ORDERS[i]);}
-  ORDERS=no;document.getElementById('ocnt').textContent=ORDERS.length;showOrders();
-  api('deleteOrder',{id:id},function(res){if(res&&res.ok)showBanner('Orden eliminada de la nube','#e8563a');});
+  ORDERS=no;
+  document.getElementById('ocnt').textContent=ORDERS.length;
+  showOrders();
   ntf('Orden #'+pad(id)+' eliminada','#e8563a');
+  // Then delete from Google Sheets
+  if(SCRIPT_URL && SCRIPT_URL!=='PEGAR_URL_AQUI'){
+    showBanner('Eliminando de Google Sheets...','#f5a623');
+    api('deleteOrder',{id:String(id)},function(res){
+      if(res&&res.ok){
+        showBanner('Orden #'+pad(id)+' eliminada correctamente','#5cb85c');
+      } else {
+        showBanner('Eliminada localmente. Error en Sheets: '+(res?res.error||'sin respuesta':'sin respuesta'),'#e8563a');
+      }
+    });
+  }
 }
 
 // ── EDIT ORDER ────────────────────────────────────────────────────────────
