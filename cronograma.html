@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cronograma de Trabajo – DekorFactory</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #333; }
+    header {
+      background: linear-gradient(135deg, #1a237e, #283593);
+      color: white; padding: 24px 32px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; }
+    header p { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
+
+    /* Resumen de reglas */
+    .rules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .rule-card { background: white; border-radius: 10px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #1a237e; }
+    .rule-card h3 { font-size: 0.75rem; text-transform: uppercase; color: #888; letter-spacing: 0.5px; }
+    .rule-card p { font-size: 1rem; font-weight: 600; margin-top: 4px; color: #1a237e; }
+
+    /* Leyenda de grupos */
+    .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; align-items: center; }
+    .legend span { font-size: 0.85rem; font-weight: 600; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+    .g-A { background: #bbdefb; color: #0d47a1; }
+    .g-B { background: #c8e6c9; color: #1b5e20; }
+    .g-C { background: #ffe0b2; color: #e65100; }
+    .g-D { background: #e1bee7; color: #4a148c; }
+    .g-E { background: #fff9c4; color: #f57f17; }
+    .g-ESP { background: #fce4ec; color: #880e4f; }
+
+    /* Tabla de personal */
+    section { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 28px; overflow: hidden; }
+    section h2 { background: #1a237e; color: white; padding: 12px 20px; font-size: 0.95rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th { background: #e8eaf6; color: #1a237e; padding: 9px 12px; text-align: left; font-weight: 700; }
+    td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #fafafa; }
+    .dept-row td { font-weight: 700; background: #e8eaf6 !important; color: #1a237e; font-size: 0.8rem; }
+
+    /* Calendario */
+    .cal-wrapper { overflow-x: auto; }
+    .cal-table { min-width: 900px; }
+    .cal-table th { font-size: 0.78rem; text-align: center; }
+    .cal-table td { text-align: center; font-size: 0.78rem; padding: 6px 4px; }
+    .day-sat { background: #fff3e0 !important; }
+    .day-comp { background: #e8f5e9 !important; font-weight: 700; color: #2e7d32; }
+    .day-work { background: #e3f2fd !important; }
+    .day-off { color: #bbb; }
+    .day-header-sat { background: #ff8f00 !important; color: white !important; }
+    .day-header-comp { background: #388e3c !important; color: white !important; }
+    .symbol { font-size: 0.95rem; }
+
+    /* Nota compensatorio */
+    .nota { background: #fffde7; border: 1px solid #f9a825; border-radius: 8px; padding: 14px 18px; margin-bottom: 24px; font-size: 0.85rem; }
+    .nota strong { color: #e65100; }
+
+    @media print {
+      body { background: white; }
+      header { background: #1a237e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      section h2 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>DekorFactory — Cronograma de Trabajo</h1>
+    <p>Período: Julio 2026 &nbsp;|&nbsp; Vigencia: Mensual con rotación semanal &nbsp;|&nbsp; Generado: 18 Jun 2026</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Reglas -->
+  <div class="rules-grid">
+    <div class="rule-card">
+      <h3>Horario Lunes – Viernes</h3>
+      <p>08:00 – 20:00 (12 h/día)</p>
+    </div>
+    <div class="rule-card">
+      <h3>Horario Sábado</h3>
+      <p>08:00 – 16:00 (8 h)</p>
+    </div>
+    <div class="rule-card">
+      <h3>Pago Sábado</h3>
+      <p>Día libre compensatorio</p>
+    </div>
+    <div class="rule-card">
+      <h3>Día compensatorio</h3>
+      <p>Lunes siguiente al sábado trabajado</p>
+    </div>
+    <div class="rule-card">
+      <h3>Total empleados</h3>
+      <p>42 personas / 13 áreas</p>
+    </div>
+    <div class="rule-card">
+      <h3>Rotación sábados</h3>
+      <p>4 grupos (A, B, C, D) + Especiales</p>
+    </div>
+  </div>
+
+  <!-- Nota sobre compensatorio -->
+  <div class="nota">
+    <strong>Política de días compensatorios:</strong> Todo empleado que trabaje el sábado (08:00–16:00) acumulará 1 día libre compensatorio, el cual será tomado el <strong>lunes inmediatamente siguiente</strong> al sábado trabajado. Esto garantiza un fin de semana largo de recuperación. Los roles marcados como <strong>Especial (ESP)</strong> trabajan todos los sábados y acumulan el compensatorio semanalmente según disponibilidad operativa acordada con su supervisor.
+  </div>
+
+  <!-- Leyenda -->
+  <div class="legend">
+    <span>Grupos de rotación sábados:</span>
+    <span class="badge g-A">Grupo A — Sáb 4 Jul → Lun 6 Jul libre</span>
+    <span class="badge g-B">Grupo B — Sáb 11 Jul → Lun 13 Jul libre</span>
+    <span class="badge g-C">Grupo C — Sáb 18 Jul → Lun 20 Jul libre</span>
+    <span class="badge g-D">Grupo D — Sáb 25 Jul → Lun 27 Jul libre</span>
+    <span class="badge g-ESP">ESP — Trabaja todos los sáb. (compensatorio acordado)</span>
+  </div>
+
+  <!-- Tabla de personal por departamento -->
+  <section>
+    <h2>Personal por Departamento — Asignación de Grupo</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre Completo</th>
+          <th>Departamento</th>
+          <th>Horario L–V</th>
+          <th>Horario Sáb</th>
+          <th>Grupo Rotación</th>
+          <th>Compensatorio (Julio)</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- Asistente de Producción -->
+        <tr class="dept-row"><td colspan="7">ASISTENTE DE PRODUCCIÓN</td></tr>
+        <tr>
+          <td>4</td>
+          <td>AMPUÑO GUIM JUAN ALEJANDRO</td>
+          <td>Asist. Producción</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-ESP">ESP</span></td>
+          <td>Acordar con supervisor</td>
+        </tr>
+
+        <!-- Ventas en Línea -->
+        <tr class="dept-row"><td colspan="7">VENTAS EN LÍNEA</td></tr>
+        <tr>
+          <td>5</td>
+          <td>QUIROGA JIMENEZ EMILENE ESTEFANIA</td>
+          <td>Ventas en Línea</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+
+        <!-- Supervisión de Producción -->
+        <tr class="dept-row"><td colspan="7">SUPERVISIÓN DE PRODUCCIÓN</td></tr>
+        <tr>
+          <td>6</td>
+          <td>HERRERA CAJAMARCA VICENTE ALFONSO</td>
+          <td>Supervisión Prod.</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-ESP">ESP</span></td>
+          <td>Acordar con gerencia</td>
+        </tr>
+
+        <!-- Diseño -->
+        <tr class="dept-row"><td colspan="7">DISEÑO</td></tr>
+        <tr>
+          <td>7</td>
+          <td>CARPIO CABRERA CARLOS ALBERTO</td>
+          <td>Diseño</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>RAMOS VACA FREDDY ISRAEL</td>
+          <td>Diseño</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-B">B</span></td>
+          <td>Lun 13 Jul</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>CASTRO PEÑALOZA KONNY GABRIELA</td>
+          <td>Diseño</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-C">C</span></td>
+          <td>Lun 20 Jul</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>CHICA CAMPOZANO DANIEL ANDRES</td>
+          <td>Diseño</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-D">D</span></td>
+          <td>Lun 27 Jul</td>
+        </tr>
+
+        <!-- Imprenta -->
+        <tr class="dept-row"><td colspan="7">IMPRENTA</td></tr>
+        <tr>
+          <td>11</td>
+          <td>ANDRADE SANCHEZ EDDISON HERMEN</td>
+          <td>Imprenta</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>GONZALEZ GARCIA EDUARDO JOSE</td>
+          <td>Imprenta</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-C">C</span></td>
+          <td>Lun 20 Jul</td>
+        </tr>
+
+        <!-- Troqueladora / Laminado -->
+        <tr class="dept-row"><td colspan="7">TROQUELADORA, TROQUELES, LAMINADO</td></tr>
+        <tr>
+          <td>13</td>
+          <td>PEÑAFIEL FLORES PEDRO XAVIER</td>
+          <td>Troqueladora / Laminado</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-B">B</span></td>
+          <td>Lun 13 Jul</td>
+        </tr>
+
+        <!-- Pegadora de cajas / Cuchilla -->
+        <tr class="dept-row"><td colspan="7">PEGADORA DE CAJAS / CUCHILLA</td></tr>
+        <tr>
+          <td>14</td>
+          <td>CAICEDO ZAMBRANO JORGE GABRIEL</td>
+          <td>Pegadora / Cuchilla</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-D">D</span></td>
+          <td>Lun 27 Jul</td>
+        </tr>
+
+        <!-- Manufactura -->
+        <tr class="dept-row"><td colspan="7">MANUFACTURA (9 personas — rotación A→D + A)</td></tr>
+        <tr>
+          <td>15</td>
+          <td>ZUÑIGA DELGADO KATTY MARY</td>
+          <td>Manufactura</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+        <tr>
+          <td>16</td>
+          <td>CHUNGA REYES NATHALY ISABEL</td>
+          <td>Manufactura</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-B">B</span></td>
+          <td>Lun 13 Jul</td>
+        </tr>
+        <tr>
+          <td>17</td>
+          <td>GUERRERO VASQUEZ ANGELICA MARIA</td>
+          <td>Manufactura</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-C">C</span></td>
+          <td>Lun 20 Jul</td>
+        </tr>
+        <tr>
+          <td>18</td>
+          <td>VILLON LUCIN ANGELA</td>
+          <td>Manufactura</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-D">D</span></td>
+          <td>Lun 27 Jul</td>
+        </tr>
+        <tr>
+          <td>19</td>
+          <td>GUERRA CANTOS GENESIS BELEN</td>
+          <td>Manufactura</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+        <tr>
+          <td>20</td>
+          <td>CASTRO CANDELA NAYELI NOELIA</td>
+          <td>Manufactura</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-B">B</span></td>
+          <td>Lun 13 Jul</td>
+        </tr>
+        <tr>
+          <td>21</td>
+          <td>ANDRADE PIONCE ANTONIO WELLINGTON</td>
+          <td>Manufactura</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-C">C</span></td>
+          <td>Lun 20 Jul</td>
+        </tr>
+        <tr>
+          <td>22</td>
+          <td>IZA AYALA GEORGINA DEL CARMEN</td>
+          <td>Manufactura</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-D">D</span></td>
+          <td>Lun 27 Jul</td>
+        </tr>
+        <tr>
+          <td>23</td>
+          <td>FLORES FUENTES MARTHA VANESSA</td>
+          <td>Manufactura</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+
+        <!-- Manufactura MDF -->
+        <tr class="dept-row"><td colspan="7">MANUFACTURA DE MDF</td></tr>
+        <tr>
+          <td>24</td>
+          <td>CHILAN PIHUABE GLORIA PATRICIA</td>
+          <td>Manufactura MDF</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-B">B</span></td>
+          <td>Lun 13 Jul</td>
+        </tr>
+        <tr>
+          <td>25</td>
+          <td>CHILA ACUÑA KEVIN ANDRES</td>
+          <td>Manufactura MDF</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-D">D</span></td>
+          <td>Lun 27 Jul</td>
+        </tr>
+
+        <!-- Piñatas -->
+        <tr class="dept-row"><td colspan="7">PIÑATAS</td></tr>
+        <tr>
+          <td>27</td>
+          <td>ILLAPA APUGLLON ROSA ELVIRA</td>
+          <td>Piñatas</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+        <tr>
+          <td>28</td>
+          <td>DELGADO DELGADO MARIA ELENA</td>
+          <td>Piñatas</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-B">B</span></td>
+          <td>Lun 13 Jul</td>
+        </tr>
+        <tr>
+          <td>29</td>
+          <td>HERRERA CASTRO FRANCISCO JAVIER</td>
+          <td>Piñatas</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-C">C</span></td>
+          <td>Lun 20 Jul</td>
+        </tr>
+        <tr>
+          <td>30</td>
+          <td>CHILA ACUÑA JAIR ALEXANDER</td>
+          <td>Piñatas</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-D">D</span></td>
+          <td>Lun 27 Jul</td>
+        </tr>
+
+        <!-- Laser -->
+        <tr class="dept-row"><td colspan="7">LÁSER</td></tr>
+        <tr>
+          <td>31</td>
+          <td>ALARCON CABRERA PEDRO ENRIQUE</td>
+          <td>Láser</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-B">B</span></td>
+          <td>Lun 13 Jul</td>
+        </tr>
+        <tr>
+          <td>32</td>
+          <td>TOALA CASTRO JOHNATAN ALEXANDER</td>
+          <td>Láser</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-D">D</span></td>
+          <td>Lun 27 Jul</td>
+        </tr>
+
+        <!-- Despacho -->
+        <tr class="dept-row"><td colspan="7">DESPACHO</td></tr>
+        <tr>
+          <td>33</td>
+          <td>ILLAPA APUGLLON MAYRA ALEJANDRA</td>
+          <td>Despacho</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+        <tr>
+          <td>34</td>
+          <td>TOAPANTA VILLON SANTIAGO DAVID</td>
+          <td>Despacho</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-B">B</span></td>
+          <td>Lun 13 Jul</td>
+        </tr>
+        <tr>
+          <td>35</td>
+          <td>TUMBACO VILLON JENNIFER ALEXANDRA</td>
+          <td>Despacho</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-C">C</span></td>
+          <td>Lun 20 Jul</td>
+        </tr>
+        <tr>
+          <td>36</td>
+          <td>HERRERA CASTRO JUAN PABLO</td>
+          <td>Despacho</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-D">D</span></td>
+          <td>Lun 27 Jul</td>
+        </tr>
+        <tr>
+          <td>37</td>
+          <td>TOALA VILELA CARLOS ANDRES</td>
+          <td>Despacho</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+
+        <!-- Ventas -->
+        <tr class="dept-row"><td colspan="7">VENTAS</td></tr>
+        <tr>
+          <td>38</td>
+          <td>CAZA CARGUA DAVID FERNANDO</td>
+          <td>Ventas</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-A">A</span></td>
+          <td>Lun 6 Jul</td>
+        </tr>
+        <tr>
+          <td>39</td>
+          <td>TABOADA RAMOS ERIKA MONSERRATT</td>
+          <td>Ventas</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-B">B</span></td>
+          <td>Lun 13 Jul</td>
+        </tr>
+        <tr>
+          <td>40</td>
+          <td>SANCHEZ CAICEDO JOSE LUIS</td>
+          <td>Ventas</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-C">C</span></td>
+          <td>Lun 20 Jul</td>
+        </tr>
+        <tr>
+          <td>41</td>
+          <td>SUAREZ RIVAS YOSELIN NATALY</td>
+          <td>Ventas</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-D">D</span></td>
+          <td>Lun 27 Jul</td>
+        </tr>
+
+        <!-- Chofer -->
+        <tr class="dept-row"><td colspan="7">CHOFER</td></tr>
+        <tr>
+          <td>42</td>
+          <td>VELASQUEZ PAREDES DANILO ALEJANDRO</td>
+          <td>Chofer</td>
+          <td>08:00–20:00</td>
+          <td>08:00–16:00</td>
+          <td><span class="badge g-ESP">ESP</span></td>
+          <td>Acordar con supervisor</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Calendario Julio 2026 -->
+  <section>
+    <h2>Calendario de Trabajo — Julio 2026</h2>
+    <div class="cal-wrapper">
+      <table class="cal-table">
+        <thead>
+          <tr>
+            <th>EMPLEADO / GRUPO</th>
+            <!-- Semana 1 -->
+            <th>Mié 1</th><th>Jue 2</th><th>Vie 3</th>
+            <th class="day-header-sat">Sáb 4</th>
+            <!-- Semana 2 -->
+            <th class="day-header-comp">Lun 6</th><th>Mar 7</th><th>Mié 8</th><th>Jue 9</th><th>Vie 10</th>
+            <th class="day-header-sat">Sáb 11</th>
+            <!-- Semana 3 -->
+            <th class="day-header-comp">Lun 13</th><th>Mar 14</th><th>Mié 15</th><th>Jue 16</th><th>Vie 17</th>
+            <th class="day-header-sat">Sáb 18</th>
+            <!-- Semana 4 -->
+            <th class="day-header-comp">Lun 20</th><th>Mar 21</th><th>Mié 22</th><th>Jue 23</th><th>Vie 24</th>
+            <th class="day-header-sat">Sáb 25</th>
+            <!-- Semana 5 -->
+            <th class="day-header-comp">Lun 27</th><th>Mar 28</th><th>Mié 29</th><th>Jue 30</th><th>Vie 31</th>
+          </tr>
+        </thead>
+        <tbody id="calBody"></tbody>
+      </table>
+    </div>
+    <div style="padding:12px 20px; font-size:0.78rem; color:#555; border-top:1px solid #eee;">
+      <strong>🟦 T</strong> = Trabaja &nbsp;&nbsp;
+      <strong style="color:#388e3c">🟩 LC</strong> = Día Libre Compensatorio (por sábado trabajado) &nbsp;&nbsp;
+      <strong style="color:#888">— D</strong> = Descanso (domingo) &nbsp;&nbsp;
+      <strong style="color:#e65100">🟧 S</strong> = Trabaja Sábado
+    </div>
+  </section>
+
+  <!-- Resumen compensatorios -->
+  <section>
+    <h2>Resumen de Días Compensatorios — Julio 2026</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Grupo</th>
+          <th>Sábado Trabajado</th>
+          <th>Día Compensatorio</th>
+          <th>Empleados</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge g-A">Grupo A</span></td>
+          <td>Sábado 4 de Julio</td>
+          <td><strong style="color:#2e7d32">Lunes 6 de Julio</strong></td>
+          <td>QUIROGA, CARPIO, ANDRADE E., ZUÑIGA, GUERRA G., FLORES M., ILLAPA R., ILLAPA M., TOALA V., CAZA</td>
+        </tr>
+        <tr>
+          <td><span class="badge g-B">Grupo B</span></td>
+          <td>Sábado 11 de Julio</td>
+          <td><strong style="color:#2e7d32">Lunes 13 de Julio</strong></td>
+          <td>RAMOS F., PEÑAFIEL, CHUNGA, CASTRO C., CHILAN G., DELGADO M., ALARCON, TOAPANTA, TABOADA</td>
+        </tr>
+        <tr>
+          <td><span class="badge g-C">Grupo C</span></td>
+          <td>Sábado 18 de Julio</td>
+          <td><strong style="color:#2e7d32">Lunes 20 de Julio</strong></td>
+          <td>CASTRO K., GONZALEZ E., GUERRERO A., ANDRADE P., HERRERA F., TUMBACO, SANCHEZ J.</td>
+        </tr>
+        <tr>
+          <td><span class="badge g-D">Grupo D</span></td>
+          <td>Sábado 25 de Julio</td>
+          <td><strong style="color:#2e7d32">Lunes 27 de Julio</strong></td>
+          <td>CHICA D., CAICEDO J., VILLON A., IZA G., CHILA K., CHILA J., TOALA J., HERRERA J.P., SUAREZ Y.</td>
+        </tr>
+        <tr>
+          <td><span class="badge g-ESP">Especial</span></td>
+          <td>Todos los sábados</td>
+          <td><strong style="color:#880e4f">Acordar con supervisor</strong></td>
+          <td>AMPUÑO J. (Asist. Prod.), HERRERA V. (Supervisión), VELASQUEZ D. (Chofer)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+<script>
+const employees = [
+  { name: "AMPUÑO GUIM JUAN ALEJANDRO", group: "ESP" },
+  { name: "QUIROGA JIMENEZ EMILENE", group: "A" },
+  { name: "HERRERA CAJAMARCA VICENTE", group: "ESP" },
+  { name: "CARPIO CABRERA CARLOS", group: "A" },
+  { name: "RAMOS VACA FREDDY ISRAEL", group: "B" },
+  { name: "CASTRO PEÑALOZA KONNY", group: "C" },
+  { name: "CHICA CAMPOZANO DANIEL", group: "D" },
+  { name: "ANDRADE SANCHEZ EDDISON", group: "A" },
+  { name: "GONZALEZ GARCIA EDUARDO", group: "C" },
+  { name: "PEÑAFIEL FLORES PEDRO", group: "B" },
+  { name: "CAICEDO ZAMBRANO JORGE", group: "D" },
+  { name: "ZUÑIGA DELGADO KATTY", group: "A" },
+  { name: "CHUNGA REYES NATHALY", group: "B" },
+  { name: "GUERRERO VASQUEZ ANGELICA", group: "C" },
+  { name: "VILLON LUCIN ANGELA", group: "D" },
+  { name: "GUERRA CANTOS GENESIS", group: "A" },
+  { name: "CASTRO CANDELA NAYELI", group: "B" },
+  { name: "ANDRADE PIONCE ANTONIO", group: "C" },
+  { name: "IZA AYALA GEORGINA", group: "D" },
+  { name: "FLORES FUENTES MARTHA", group: "A" },
+  { name: "CHILAN PIHUABE GLORIA", group: "B" },
+  { name: "CHILA ACUÑA KEVIN", group: "D" },
+  { name: "ILLAPA APUGLLON ROSA", group: "A" },
+  { name: "DELGADO DELGADO MARIA ELENA", group: "B" },
+  { name: "HERRERA CASTRO FRANCISCO", group: "C" },
+  { name: "CHILA ACUÑA JAIR", group: "D" },
+  { name: "ALARCON CABRERA PEDRO", group: "B" },
+  { name: "TOALA CASTRO JOHNATAN", group: "D" },
+  { name: "ILLAPA APUGLLON MAYRA", group: "A" },
+  { name: "TOAPANTA VILLON SANTIAGO", group: "B" },
+  { name: "TUMBACO VILLON JENNIFER", group: "C" },
+  { name: "HERRERA CASTRO JUAN PABLO", group: "D" },
+  { name: "TOALA VILELA CARLOS", group: "A" },
+  { name: "CAZA CARGUA DAVID", group: "A" },
+  { name: "TABOADA RAMOS ERIKA", group: "B" },
+  { name: "SANCHEZ CAICEDO JOSE LUIS", group: "C" },
+  { name: "SUAREZ RIVAS YOSELIN", group: "D" },
+  { name: "VELASQUEZ PAREDES DANILO", group: "ESP" },
+];
+
+// Days structure: columns in order
+// Sat4=col3(idx3 from 0), Mon6=col4, ..., Sat11=col9, Mon13=col10, ..., Sat18=col15, Mon20=col16, ..., Sat25=col21, Mon27=col22...
+// cols: Wed1, Thu2, Fri3, Sat4, Mon6, Tue7, Wed8, Thu9, Fri10, Sat11, Mon13, Tue14, Wed15, Thu16, Fri17, Sat18, Mon20, Tue21, Wed22, Thu23, Fri24, Sat25, Mon27, Tue28, Wed29, Thu30, Fri31
+
+const tbody = document.getElementById("calBody");
+
+employees.forEach(emp => {
+  const tr = document.createElement("tr");
+  const badge = `<span class="badge g-${emp.group}">${emp.group}</span>`;
+  tr.innerHTML = `<td style="text-align:left;white-space:nowrap;font-size:0.75rem">${badge} ${emp.name}</td>`;
+
+  const days = [
+    // Wed1, Thu2, Fri3
+    {type:"work"}, {type:"work"}, {type:"work"},
+    // Sat4
+    {type:"sat", group:emp.group, satGroup:"A"},
+    // Mon6, Tue7, Wed8, Thu9, Fri10
+    {type:"comp", group:emp.group, compGroup:"A"},
+    {type:"work"}, {type:"work"}, {type:"work"}, {type:"work"},
+    // Sat11
+    {type:"sat", group:emp.group, satGroup:"B"},
+    // Mon13, Tue14, Wed15, Thu16, Fri17
+    {type:"comp", group:emp.group, compGroup:"B"},
+    {type:"work"}, {type:"work"}, {type:"work"}, {type:"work"},
+    // Sat18
+    {type:"sat", group:emp.group, satGroup:"C"},
+    // Mon20, Tue21, Wed22, Thu23, Fri24
+    {type:"comp", group:emp.group, compGroup:"C"},
+    {type:"work"}, {type:"work"}, {type:"work"}, {type:"work"},
+    // Sat25
+    {type:"sat", group:emp.group, satGroup:"D"},
+    // Mon27, Tue28, Wed29, Thu30, Fri31
+    {type:"comp", group:emp.group, compGroup:"D"},
+    {type:"work"}, {type:"work"}, {type:"work"}, {type:"work"},
+  ];
+
+  days.forEach(d => {
+    const td = document.createElement("td");
+    if (d.type === "work") {
+      td.className = "day-work";
+      td.innerHTML = "<span class='symbol'>T</span>";
+    } else if (d.type === "sat") {
+      if (d.group === "ESP" || d.group === d.satGroup) {
+        td.className = "day-sat";
+        td.innerHTML = "<span class='symbol' style='color:#e65100;font-weight:700'>S</span>";
+      } else {
+        td.innerHTML = "<span style='color:#ccc'>—</span>";
+      }
+    } else if (d.type === "comp") {
+      if (d.group !== "ESP" && d.group === d.compGroup) {
+        td.className = "day-comp";
+        td.innerHTML = "<span class='symbol'>LC</span>";
+      } else {
+        td.className = "day-work";
+        td.innerHTML = "<span class='symbol'>T</span>";
+      }
+    }
+    tr.appendChild(td);
+  });
+
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>
